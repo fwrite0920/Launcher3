@@ -1,0 +1,83 @@
+@startuml
+title Launcher3 架构图
+
+' 设置全局样式
+skinparam {
+  componentStyle rectangle
+  backgroundColor white
+  titleFontSize 20
+  packageBackgroundColor transparent
+}
+
+' 模型层 (Model)
+package "模型层 (Model)" #lightblue {
+  component "LauncherModel\n(核心数据模型)" as LauncherModel
+  component "AllAppsList\n(应用列表管理)" as AllAppsList
+  component "WidgetsModel\n(小部件管理)" as WidgetsModel
+  component "ItemInfo\n(桌面项目基类)" as ItemInfo
+  component "ShortcutInfo\n(快捷方式信息)" as ShortcutInfo
+  component "FolderInfo\n(文件夹信息)" as FolderInfo
+  component "LauncherAppWidgetInfo\n(小部件信息)" as LauncherAppWidgetInfo
+  component "LauncherProvider\n(数据存储)" as LauncherProvider
+  component "IconCache\n(图标缓存)" as IconCache
+}
+
+' 视图层 (View)
+package "视图层 (View)" #honeydew {
+  component "Launcher\n(主Activity)" as Launcher #lightpink
+  component "Workspace\n(工作区)" as Workspace
+  component "CellLayout\n(网格布局)" as CellLayout
+  component "Hotseat\n(底部Dock栏)" as Hotseat
+  component "AllAppsContainerView\n(所有应用视图)" as AllAppsContainerView
+  component "WidgetsContainerView\n(小部件选择器)" as WidgetsContainerView
+  component "FolderIcon\n(文件夹图标)" as FolderIcon
+  component "BubbleTextView\n(应用图标)" as BubbleTextView
+  component "LauncherAppWidgetHostView\n(小部件视图)" as LauncherAppWidgetHostView
+}
+
+' 控制器层 (Controller)
+package "控制器层 (Controller)" #mistyrose {
+  component "LauncherAppState\n(应用状态管理)" as LauncherAppState
+  component "DragController\n(拖放控制)" as DragController
+  component "DragLayer\n(拖放层)" as DragLayer
+  component "LauncherStateTransitionAnimation\n(状态转换动画)" as StateTransitionAnimation
+  component "DeviceProfile\n(设备配置)" as DeviceProfile
+}
+
+' 模型层内部关系
+LauncherModel --> AllAppsList : 管理
+LauncherModel --> WidgetsModel : 管理
+LauncherModel --> LauncherProvider : 读写数据
+ItemInfo <-- ShortcutInfo : 继承
+ItemInfo <-- FolderInfo : 继承
+ItemInfo <-- LauncherAppWidgetInfo : 继承
+LauncherModel --> IconCache : 使用
+
+' 控制器与模型层关系
+LauncherAppState --> LauncherModel : 持有引用
+LauncherAppState --> IconCache : 持有引用
+
+' 视图与模型层关系
+Launcher --> LauncherModel : 通过回调监听数据变化
+Workspace --> ItemInfo : 展示
+AllAppsContainerView --> AllAppsList : 展示
+WidgetsContainerView --> WidgetsModel : 展示
+
+' 视图层内部关系
+Launcher --> Workspace : 包含
+Launcher --> Hotseat : 包含
+Launcher --> AllAppsContainerView : 包含
+Launcher --> WidgetsContainerView : 包含
+Workspace --> CellLayout : 包含多个
+CellLayout --> BubbleTextView : 包含
+CellLayout --> FolderIcon : 包含
+CellLayout --> LauncherAppWidgetHostView : 包含
+
+' 控制器与视图层关系
+Launcher --> LauncherAppState : 初始化和使用
+Launcher --> DragController : 持有引用
+DragController --> DragLayer : 控制
+Launcher --> StateTransitionAnimation : 使用
+LauncherAppState --> DeviceProfile : 持有引用
+
+@enduml 

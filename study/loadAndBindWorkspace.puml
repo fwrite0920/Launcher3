@@ -1,0 +1,94 @@
+@startuml
+title loadAndBindWorkspace() 方法流程
+
+start
+:loadAndBindWorkspace();
+:waitForIdle();
+note right: 等待系统空闲以避免资源竞争
+
+if (mStopped?) then (yes)
+  stop
+endif
+
+:mIsLoadingAndBindingWorkspace = true;
+
+:loadWorkspace();
+note right
+  从数据库加载所有工作区数据:
+  - 工作区屏幕
+  - 应用程序快捷方式
+  - 文件夹
+  - 小部件
+end note
+
+partition "loadWorkspace()" {
+  :获取数据库连接;
+  :加载工作区屏幕信息;
+  note right: 填充 sBgWorkspaceScreens
+
+  :加载所有工作区项目;
+
+  fork
+    :加载应用程序快捷方式;
+  fork again
+    :加载文件夹及其内部项目;
+  fork again
+    :加载小部件及其配置;
+  end fork
+
+  :填充静态数据结构;
+  note right
+    - sBgWorkspaceItems
+    - sBgAppWidgets
+    - sBgFolders
+    - sBgItemsIdMap
+  end note
+
+  :mWorkspaceLoaded = true;
+}
+
+if (mStopped?) then (yes)
+  stop
+endif
+
+:bindWorkspace(synchronousBindPage);
+note right: 将加载的数据绑定到UI
+
+partition "bindWorkspace()" {
+  :获取当前页面(currentScreen);
+
+  :filterCurrentWorkspaceItems();
+  note right: 将项目分为当前屏幕项目和其他屏幕项目
+
+  :sortWorkspaceItemsSpatially();
+  note right: 根据项目在屏幕上的位置排序
+
+  :bindWorkspaceScreens(orderedScreens);
+  note right: callbacks.bindScreens()
+
+  if (synchronousBindPage有效?) then (yes)
+    :处理指定页面;
+  else (no)
+    :处理当前页面;
+  endif
+
+  :bindWorkspaceItems(当前屏幕项目);
+  note right: callbacks.bindItems()
+
+  :bindAppWidgets(当前屏幕小部件);
+  note right: callbacks.bindAppWidget()
+
+  :finishFirstPageBind();
+  note right: 完成第一页绑定，使界面可见
+
+  :异步绑定剩余页面;
+  note right
+    - 分批处理其他屏幕项目
+    - 使用ITEMS_CHUNK常量控制批次
+  end note
+}
+
+:mIsLoadingAndBindingWorkspace = false;
+
+stop
+@enduml

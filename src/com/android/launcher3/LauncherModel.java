@@ -1381,7 +1381,7 @@ public class LauncherModel extends BroadcastReceiver
             if (DEBUG_LOADERS) {
                 Log.d(TAG, "loadAndBindWorkspace mWorkspaceLoaded=" + mWorkspaceLoaded);
             }
-
+            // 判断workspace是否已经加载
             if (!mWorkspaceLoaded) {
                 loadWorkspace();
                 synchronized (LoaderTask.this) {
@@ -1716,6 +1716,7 @@ public class LauncherModel extends BroadcastReceiver
                 HashMap<ComponentKey, AppWidgetProviderInfo> widgetProvidersMap = null;
 
                 try {
+                    //从数据库查询解析出来的所有应用信息
                     final int idIndex = c.getColumnIndexOrThrow(LauncherSettings.Favorites._ID);
                     final int intentIndex = c.getColumnIndexOrThrow
                             (LauncherSettings.Favorites.INTENT);
@@ -1814,8 +1815,10 @@ public class LauncherModel extends BroadcastReceiver
                                     intent = Intent.parseUri(intentDescription, 0);
                                     ComponentName cn = intent.getComponent();
                                     if (cn != null && cn.getPackageName() != null) {
+                                        //检测数据库(从xml文件解析出来存入数据库的)中取出来的app包是否存在
                                         boolean validPkg = launcherApps.isPackageEnabledForProfile(
                                                 cn.getPackageName(), user);
+                                        //检测数据库(从xml文件解析出来存入数据库的)中取出来的app组件是否存在
                                         boolean validComponent = validPkg &&
                                                 launcherApps.isActivityEnabledForProfile(cn, user);
                                         if (validPkg) {

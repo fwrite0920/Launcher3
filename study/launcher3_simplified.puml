@@ -1,0 +1,41 @@
+@startuml
+title Launcher3 简化架构图
+
+' 定义节点样式
+skinparam {
+  componentStyle rectangle
+  backgroundColor white
+  titleFontSize 18
+}
+
+' 主要模块
+rectangle "模型层 (Model)\n\nLauncherModel\nAllAppsList\nWidgetsModel\nItemInfo (及子类)\nLauncherProvider\nIconCache" as ModelLayer #lightblue
+rectangle "视图层 (View)\n\nLauncher (主Activity)\nWorkspace (工作区)\nCellLayout (网格布局)\nHotseat (底栏)\nAllAppsContainerView\nWidgetsContainerView\n各种UI组件" as ViewLayer #lightgreen
+rectangle "控制器层 (Controller)\n\nLauncherAppState\nDragController\nStateTransitionAnimation\nDeviceProfile" as ControllerLayer #lightsalmon
+
+' 数据流
+ModelLayer <--> ViewLayer : 数据绑定/更新
+ControllerLayer --> ModelLayer : 协调和管理
+ControllerLayer --> ViewLayer : 控制UI行为
+
+' 系统数据流
+rectangle "系统事件\n应用安装/卸载\n配置变更" as SystemEvents #lightgrey
+rectangle "用户交互\n点击/长按/拖放" as UserInteraction #lightgrey
+
+SystemEvents --> ModelLayer
+UserInteraction --> ViewLayer
+ViewLayer --> ControllerLayer : 事件处理
+
+' 子系统
+package "重要子系统" {
+  rectangle "拖放系统\nDragController\nDragLayer\nDropTarget" as DragDropSystem #moccasin
+  rectangle "小部件系统\nAppWidgetHost\nWidgetHostView" as WidgetSystem #moccasin
+  rectangle "数据存储系统\nLauncherProvider\nLauncherDB" as StorageSystem #moccasin
+}
+
+ViewLayer ..> DragDropSystem
+ControllerLayer ..> DragDropSystem
+ViewLayer ..> WidgetSystem
+ModelLayer ..> StorageSystem
+
+@enduml 
