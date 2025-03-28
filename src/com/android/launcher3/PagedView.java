@@ -226,19 +226,28 @@ public abstract class PagedView extends ViewGroup implements ViewGroup.OnHierarc
      * Initializes various states for this workspace.
      */
     protected void init() {
+        //初始化滚动器LauncherScroller
         mScroller = new LauncherScroller(getContext());
+        //设置插值器为ScrollInterpolator
         setDefaultInterpolator(new ScrollInterpolator());
         mCurrentPage = 0;
 
+        // 获取ViewConfiguration
         final ViewConfiguration configuration = ViewConfiguration.get(getContext());
+        //mTouchSlop = 16dp
         mTouchSlop = configuration.getScaledPagingTouchSlop();
+        //最大速度8000dp/s
         mMaximumVelocity = configuration.getScaledMaximumFlingVelocity();
 
+        //获取屏幕密度系数mDensity
         mDensity = getResources().getDisplayMetrics().density;
 
         float density = getResources().getDisplayMetrics().density;
+        //滚动速度阈值 500 *density px/s
         mFlingThresholdVelocity = (int) (FLING_THRESHOLD_VELOCITY * density);
+        //最小滚动速度值 250 *density px/s
         mMinFlingVelocity = (int) (MIN_FLING_VELOCITY * density);
+        //最小snap速度值1500 *density px/s
         mMinSnapVelocity = (int) (MIN_SNAP_VELOCITY * density);
         setOnHierarchyChangeListener(this);
         setWillNotDraw(false);
@@ -2152,6 +2161,7 @@ public abstract class PagedView extends ViewGroup implements ViewGroup.OnHierarc
         if (interpolator != null) {
             mScroller.setInterpolator(interpolator);
         } else {
+            // 插值器为ScrollInterpolator
             mScroller.setInterpolator(mDefaultInterpolator);
         }
         //---------add loop 2017-06-10 start--------------------------
@@ -2162,6 +2172,7 @@ public abstract class PagedView extends ViewGroup implements ViewGroup.OnHierarc
                 mScroller.startScroll(getUnboundedScrollX(), 0, delta, 0, duration);
             }
         } else {
+            //这个整个滑动的开始点
             mScroller.startScroll(getUnboundedScrollX(), 0, delta, 0, duration);
         }
         //---------add loop 2017-06-10 end--------------------------

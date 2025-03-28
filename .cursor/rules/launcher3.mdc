@@ -51,5 +51,6 @@ alwaysApply: true
 ## 流程图和文档要求
 - 流程图尽量使用plantuml语言编写
 - 文档尽量使用markdown的方式
+- 生成的文档都放到study文件夹下
 
 在整个过程中，始终参考[Android开发者文档](mdc:https:/developer.android.com/docs)，确保使用最新的Android系统开发最佳实践。

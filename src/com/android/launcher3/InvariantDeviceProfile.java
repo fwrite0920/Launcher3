@@ -126,6 +126,7 @@ public class InvariantDeviceProfile {
         DisplayMetrics dm = new DisplayMetrics();
         display.getMetrics(dm);
 
+        //获取屏幕的最大最小尺寸
         Point smallestSize = new Point();
         Point largestSize = new Point();
         display.getCurrentSizeRange(smallestSize, largestSize);
@@ -148,8 +149,10 @@ public class InvariantDeviceProfile {
         numFolderColumns = closestProfile.numFolderColumns;
         minAllAppsPredictionColumns = closestProfile.minAllAppsPredictionColumns;
 
+        //初始图标大小
         iconSize = interpolatedDeviceProfileOut.iconSize;
         iconBitmapSize = Utilities.pxFromDp(iconSize, dm);
+        //初始文字大小
         iconTextSize = interpolatedDeviceProfileOut.iconTextSize;
         hotseatIconSize = interpolatedDeviceProfileOut.hotseatIconSize;
         fillResIconDpi = getLauncherIconDensity(iconBitmapSize);
@@ -158,6 +161,7 @@ public class InvariantDeviceProfile {
         // Supported overrides: numRows, numColumns, iconSize
         applyPartnerDeviceProfileOverrides(context, dm);
 
+        //获取屏幕实际的尺寸
         Point realSize = new Point();
         display.getRealSize(realSize);
         // The real size never changes. smallSide and largeSide will remain the

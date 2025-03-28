@@ -424,12 +424,15 @@ public class Launcher extends Activity
                 app.getInvariantDeviceProfile().landscapeProfile
                 : app.getInvariantDeviceProfile().portraitProfile;
 
+        // 获取共享首选项和图标缓存
         mSharedPrefs = Utilities.getPrefs(this);
         mIsSafeModeEnabled = getPackageManager().isSafeMode();
         mModel = app.setLauncher(this);
         mIconCache = app.getIconCache();
+        // 创建无障碍代理
         mAccessibilityDelegate = new LauncherAccessibilityDelegate(this);
 
+        // 初始化拖动控制器
         mDragController = new DragController(this);
         mAllAppsController = new AllAppsTransitionController(this);
         mStateTransitionAnimation = new LauncherStateTransitionAnimation(this, mAllAppsController);
@@ -1339,8 +1342,10 @@ public class Launcher extends Activity
      */
     private void setupViews() {
         mLauncherView = findViewById(R.id.launcher);
+        // 获取拖动层和焦点处理器
         mDragLayer = (DragLayer) findViewById(R.id.drag_layer);
         mFocusHandler = mDragLayer.getFocusIndicatorHelper();
+        // 获取工作区、总览面板和Hotseat
         mWorkspace = (Workspace) mDragLayer.findViewById(R.id.workspace);
         mQsbContainer = mDragLayer.findViewById(mDeviceProfile.isVerticalBarLayout()
                 ? R.id.workspace_blocked_row : R.id.qsb_container);
