@@ -1,0 +1,70 @@
+@startuml
+title loadAndBindDeepShortcuts() 方法流程
+
+start
+:loadAndBindDeepShortcuts();
+
+if (mStopped?) then (yes)
+  stop
+endif
+
+:mDeepShortcutsLoaded = false;
+
+partition "加载阶段" {
+  :检查系统API版本;
+
+  if (系统支持深层快捷方式?) then (是)
+    :检查应用是否有快捷方式权限;
+    note right: 检查BIND_SHORTCUT_PERMISSION
+
+    if (有权限?) then (是)
+      :获取所有已安装应用列表;
+      note right: 使用PackageManager获取
+
+      :遍历每个应用;
+
+      :创建用户列表;
+      note right: 处理所有用户配置文件
+
+      :对每个用户，对每个应用获取深层快捷方式;
+      note right: 使用DeepShortcutManager获取
+
+      :将快捷方式添加到mBgDeepShortcutMap;
+      note right: 以ComponentKey为键存储
+    else (否)
+      :记录无权限状态;
+    endif
+  else (否)
+    :跳过深层快捷方式加载;
+    note right: 较低API级别不支持此功能
+  endif
+
+  :mDeepShortcutsLoaded = true;
+}
+
+if (mStopped?) then (yes)
+  stop
+endif
+
+partition "绑定阶段" {
+  :获取 Callbacks 引用;
+
+  if (Callbacks有效?) then (是)
+    :创建mBgDeepShortcutMap的副本;
+    note right: 防止并发修改问题
+
+    :在主线程上执行绑定;
+    note right
+      通过callbacks.bindDeepShortcutMap()
+      将数据传递给UI
+    end note
+  else (否)
+    :绑定失败，对象已释放;
+  endif
+}
+
+:更新工作区上的快捷方式图标;
+note right: 更新现有的ShortcutInfo以显示快捷方式数量指示器
+
+stop
+@enduml

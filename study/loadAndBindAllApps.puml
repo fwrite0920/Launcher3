@@ -1,0 +1,85 @@
+@startuml
+title loadAndBindAllApps() 方法流程
+
+start
+:loadAndBindAllApps();
+
+if (mStopped?) then (yes)
+  stop
+endif
+
+:mAllAppsLoaded = false;
+
+partition "loadAllApps()" {
+  :获取已安装应用程序列表;
+  note right: 使用 LauncherAppsCompat 获取系统应用列表
+
+  :清空当前应用列表;
+  note right: mBgAllAppsList.clear()
+
+  :处理每个用户的应用;
+
+  fork
+    :处理主用户应用;
+  fork again
+    :处理其他用户档案的应用(如果有);
+  end fork
+
+  :为每个应用创建 AppInfo 对象;
+  note right
+    包含:
+    - 应用名称
+    - 包名
+    - 图标
+    - 意图信息
+  end note
+
+  :将 AppInfo 添加到 mBgAllAppsList;
+
+  :过滤隐藏应用/系统应用;
+  note right: 根据 AppFilter 设置
+
+  :mAllAppsLoaded = true;
+}
+
+if (mStopped?) then (yes)
+  stop
+endif
+
+:决定绑定方式;
+
+if (需要更新图标?) then (yes)
+  :更新图标缓存;
+  note right: updateIconCache()
+endif
+
+partition "绑定应用列表" {
+  if (与其他任务合并?) then (yes)
+    :准备稍后与工作区一起绑定;
+  else (no)
+    :onlyBindAllApps();
+    note right
+      单独绑定所有应用:
+      1. 复制应用列表
+      2. 排序应用列表
+      3. 在主线程上绑定
+    end note
+
+    :获取 Callbacks 引用;
+    :创建应用程序副本;
+    :对应用列表进行排序;
+    note right: 按应用名称字母顺序
+
+    :在主线程上执行绑定;
+    note right
+      通过 callbacks.bindAllApplications(apps)
+      更新 AllAppsContainerView
+    end note
+  endif
+}
+
+:后续任务执行;
+note right: 如果有待执行的任务
+
+stop
+@enduml

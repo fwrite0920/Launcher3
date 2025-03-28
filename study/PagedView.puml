@@ -1,0 +1,66 @@
+@startuml
+title PagedView类框架图
+
+class ViewGroup
+abstract class PagedView
+class Workspace
+class PagedViewWithDraggableItems
+interface PageIndicator
+class LauncherScroller
+
+ViewGroup <|- PagedView
+PagedView <|- PagedViewWithDraggableItems
+PagedViewWithDraggableItems <|- Workspace
+
+PagedView o-- "1" PageIndicator
+PagedView o-- "1" LauncherScroller
+
+class PagedView {
+  -- 常量 --
+  +TOUCH_STATE_REST: int
+  +TOUCH_STATE_SCROLLING: int
+  +TOUCH_STATE_REORDERING: int
+  +INVALID_PAGE: int
+
+  -- 核心状态 --
+  #mCurrentPage: int
+  #mNextPage: int
+  #mTouchState: int
+  #mScroller: LauncherScroller
+  #mPageIndicator: PageIndicator
+  #mMaxScrollX: int
+
+  -- 核心方法 --
+  +getCurrentPage(): int
+  +setCurrentPage(int): void
+  +snapToPage(int): void
+  +scrollBy(int, int): void
+  +scrollTo(int, int): void
+  +onInterceptTouchEvent(MotionEvent): boolean
+  +onTouchEvent(MotionEvent): boolean
+  #determineScrollingStart(MotionEvent): void
+  #computeScroll(): void
+  #overScroll(float): void
+  +dispatchDraw(Canvas): void
+  #onLayout(boolean, int, int, int, int): void
+}
+
+class PageIndicator {
+  +setActiveMarker(int): void
+  +setMarkersCount(int): void
+  +setContentDescription(String): void
+}
+
+class LauncherScroller {
+  +computeScrollOffset(): boolean
+  +startScroll(int, int, int, int, int): void
+  +forceFinished(boolean): void
+  +abortAnimation(): void
+}
+
+note bottom of PagedView
+  PagedView是一个抽象组件，
+  提供分页浏览的核心功能，
+  被Launcher3的多个页面容器继承使用
+end note
+@enduml

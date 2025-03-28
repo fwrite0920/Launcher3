@@ -3129,10 +3129,13 @@ public class Launcher extends Activity
 
     @Override
     public boolean onLongClick(View v) {
+        // 如果不允许拖拽则返回
         if (!isDraggingEnabled()) return false;
+        // 如果桌面锁定返回
         if (isWorkspaceLocked()) return false;
+        // 如果没有在桌面显示状态返回
         if (mState != State.WORKSPACE) return false;
-
+        // 显示所有图标的按钮，显示所有图标界面
         if ((FeatureFlags.LAUNCHER3_ALL_APPS_PULL_UP && v instanceof PageIndicator) ||
                 (v == mAllAppsButton && mAllAppsButton != null)) {
             onLongClickAllAppsButton(v);

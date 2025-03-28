@@ -260,6 +260,7 @@ public class LauncherStateTransitionAnimation {
                     toWorkspaceState == Workspace.State.NORMAL_HIDDEN) {
                 mAllAppsController.finishPullUp();
             }
+            // 直接设置视图状态
             toView.setTranslationX(0.0f);
             toView.setTranslationY(0.0f);
             toView.setScaleX(1.0f);
@@ -268,8 +269,9 @@ public class LauncherStateTransitionAnimation {
             toView.setVisibility(View.VISIBLE);
 
             // Show the content view
+            // 显示内容视图
             contentView.setVisibility(View.VISIBLE);
-
+            // 分发过渡事件
             dispatchOnLauncherTransitionPrepare(fromView, animated, false);
             dispatchOnLauncherTransitionStart(fromView, animated, false);
             dispatchOnLauncherTransitionEnd(fromView, animated, false);
@@ -281,17 +283,20 @@ public class LauncherStateTransitionAnimation {
         }
         if (animType == CIRCULAR_REVEAL) {
             // Setup the reveal view animation
+            // 设置揭示视图
             final View revealView = toView.getRevealView();
 
             int width = revealView.getMeasuredWidth();
             int height = revealView.getMeasuredHeight();
             float revealRadius = (float) Math.hypot(width / 2, height / 2);
+            // 初始化揭示视图状态
             revealView.setVisibility(View.VISIBLE);
             revealView.setAlpha(0f);
             revealView.setTranslationY(0f);
             revealView.setTranslationX(0f);
 
             // Calculate the final animation values
+            // 计算最终动画值
             final float revealViewToAlpha;
             final float revealViewToXDrift;
             final float revealViewToYDrift;
@@ -308,12 +313,14 @@ public class LauncherStateTransitionAnimation {
             }
 
             // Create the animators
+            // 创建动画属性
             PropertyValuesHolder panelAlpha =
                     PropertyValuesHolder.ofFloat(View.ALPHA, revealViewToAlpha, 1f);
             PropertyValuesHolder panelDriftY =
                     PropertyValuesHolder.ofFloat(View.TRANSLATION_Y, revealViewToYDrift, 0);
             PropertyValuesHolder panelDriftX =
                     PropertyValuesHolder.ofFloat(View.TRANSLATION_X, revealViewToXDrift, 0);
+            // 创建并配置动画
             ObjectAnimator panelAlphaAndDrift = ObjectAnimator.ofPropertyValuesHolder(revealView,
                     panelAlpha, panelDriftY, panelDriftX);
             panelAlphaAndDrift.setDuration(revealDuration);
@@ -416,8 +423,10 @@ public class LauncherStateTransitionAnimation {
             mCurrentAnimation = animation;
         } else if (animType == PULLUP) {
             // We are animating the content view alpha, so ensure we have a layer for it
+            // 为内容视图设置硬件加速层
             layerViews.put(contentView, BUILD_AND_SET_LAYER);
 
+            // 设置动画监听器
             animation.addListener(new AnimatorListenerAdapter() {
                 @Override
                 public void onAnimationEnd(Animator animation) {
@@ -425,6 +434,7 @@ public class LauncherStateTransitionAnimation {
                     dispatchOnLauncherTransitionEnd(toView, animated, false);
 
                     // Disable all necessary layers
+                    // 清理图层
                     for (View v : layerViews.keySet()) {
                         if (layerViews.get(v) == BUILD_AND_SET_LAYER) {
                             v.setLayerType(View.LAYER_TYPE_NONE, null);
@@ -435,6 +445,7 @@ public class LauncherStateTransitionAnimation {
                     pCb.onTransitionComplete();
                 }
             });
+            // 执行上拉动画
             boolean shouldPost = mAllAppsController.animateToAllApps(animation, revealDurationSlide);
 
             dispatchOnLauncherTransitionPrepare(fromView, animated, false);
@@ -445,13 +456,16 @@ public class LauncherStateTransitionAnimation {
                 public void run() {
                     // Check that mCurrentAnimation hasn't changed while
                     // we waited for a layout/draw pass
+                    // 检查动画是否已更改
                     if (mCurrentAnimation != stateAnimation)
                         return;
 
+                    // 分发过渡开始事件
                     dispatchOnLauncherTransitionStart(fromView, animated, false);
                     dispatchOnLauncherTransitionStart(toView, animated, false);
 
                     // Enable all necessary layers
+                    // 设置硬件加速层
                     for (View v : layerViews.keySet()) {
                         if (layerViews.get(v) == BUILD_AND_SET_LAYER) {
                             v.setLayerType(View.LAYER_TYPE_HARDWARE, null);
@@ -461,6 +475,7 @@ public class LauncherStateTransitionAnimation {
                         }
                     }
 
+                    // 启动动画
                     toView.requestFocus();
                     stateAnimation.start();
                 }
